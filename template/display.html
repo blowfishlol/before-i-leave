@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    /* ═══════════════════════════════════════════════════
+       THEME — edit these to tweak the look
+       ═══════════════════════════════════════════════════ */
+    :root {
+      --font: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      --bg: #fff;
+      --fg: #000;
+      --muted: #555;
+      --pad: 36px;
+      --gap: 18px;
+
+      --size-clock: 72px;
+      --size-section-title: 26px;
+      --size-line-header: 21px;
+      --size-departure: 27px;
+      --size-current-temp: 68px;
+      --size-current-wind: 19px;
+      --size-forecast-time: 17px;
+      --size-forecast-temp: 26px;
+      --size-forecast-wind: 15px;
+
+      --icon-current: 52px;
+      --icon-forecast: 44px;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       BASE
+       ═══════════════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 1280px;
+      height: 720px;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--font);
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      padding: var(--pad);
+      gap: var(--gap);
+    }
+
+    /* ═══════════════════════════════════════════════════
+       DEPARTURES
+       ═══════════════════════════════════════════════════ */
+    .departures { flex: 0 0 auto; }
+
+    .section-title {
+      font-size: var(--size-section-title);
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      margin-bottom: 12px;
+    }
+
+    .departures-body {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 32px;
+    }
+
+    .departures-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0 56px;
+      flex: 1;
+    }
+
+    .line-header {
+      font-size: var(--size-line-header);
+      font-weight: 600;
+      border-bottom: 1.5px solid var(--fg);
+      padding-bottom: 5px;
+      margin-bottom: 10px;
+    }
+
+    .departure-row {
+      font-size: var(--size-departure);
+      line-height: 1.65;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .dep-mins { font-weight: 600; }
+
+    .dep-sep { color: var(--muted); margin: 0 6px; }
+
+    .dep-time { color: var(--muted); }
+
+    .clock {
+      font-size: var(--size-clock);
+      font-weight: 300;
+      letter-spacing: -2px;
+      white-space: nowrap;
+      line-height: 1;
+      padding-top: 2px;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       DIVIDER
+       ═══════════════════════════════════════════════════ */
+    .divider {
+      flex: 0 0 auto;
+      border: none;
+      border-top: 1.5px solid var(--fg);
+    }
+
+    /* ═══════════════════════════════════════════════════
+       WEATHER
+       ═══════════════════════════════════════════════════ */
+    .weather { flex: 1; display: flex; flex-direction: column; min-height: 0; justify-content: center; }
+
+    .weather-row {
+      flex: 1;
+      display: flex;
+      min-height: 0;
+      align-items: stretch;
+      gap: 24px;
+    }
+
+    /* Current conditions — left block */
+    .weather-current {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 6px;
+      padding-right: 28px;
+      border-right: 1.5px solid #ccc;
+      min-width: 160px;
+      align-self: stretch;
+    }
+
+    .current-temp {
+      font-size: var(--size-current-temp);
+      font-weight: 300;
+      letter-spacing: -2px;
+      line-height: 1;
+    }
+
+    .current-bottom {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .current-icon { width: var(--icon-current); height: var(--icon-current); flex-shrink: 0; display: block; }
+
+    .weather-icon-img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      filter: grayscale(1);
+    }
+
+    .current-wind { font-size: var(--size-current-wind); color: var(--muted); }
+
+    /* Forecast columns */
+    .forecast-columns {
+      flex: 1;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding-bottom: 8px;
+    }
+
+    .forecast-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .fc-time { font-size: var(--size-forecast-time); font-weight: 600; color: var(--muted); }
+
+    .fc-temp { font-size: var(--size-forecast-temp); font-variant-numeric: tabular-nums; }
+
+    .fc-icon { width: var(--icon-forecast); height: var(--icon-forecast); }
+
+    .fc-wind { font-size: var(--size-forecast-wind); color: var(--muted); }
+
+    /* ═══════════════════════════════════════════════════
+       UTILS
+       ═══════════════════════════════════════════════════ */
+    .empty { color: var(--muted); font-style: italic; }
+
+    svg { display: block; }
+  </style>
+</head>
+<body>
+
+  <!-- DEPARTURES ─────────────────────────────────── -->
+  <section class="departures">
+    <div class="departures-body">
+      <div style="flex:1">
+        <div class="section-title">Departures</div>
+        <div class="departures-columns">
+          <div>
+            <div class="line-header" id="left-header"></div>
+            <div id="left-departures"></div>
+          </div>
+          <div>
+            <div class="line-header" id="right-header"></div>
+            <div id="right-departures"></div>
+          </div>
+        </div>
+      </div>
+      <div class="clock" id="clock"></div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- WEATHER ────────────────────────────────────── -->
+  <section class="weather">
+    <div class="section-title">Weather</div>
+    <div class="weather-row">
+      <div class="weather-current" id="weather-current"></div>
+      <div class="forecast-columns" id="forecast-columns"></div>
+    </div>
+  </section>
+
+  <!-- DATA_INJECT -->
+  <script>
+    // ═══════════════════════════════════════════════════
+    // WEATHER ICONS — Bas Milius Meteocons (MIT license)
+    // https://github.com/basmilius/weather-icons
+    //
+    // Maps OWM icon codes → icon names.
+    // Browse all names at: https://bas.dev/work/meteocons
+    // ═══════════════════════════════════════════════════
+    const CDN = 'https://cdn.jsdelivr.net/gh/basmilius/weather-icons/production/line/all';
+
+    const ICON_MAP = {
+      '01d': 'clear-day',
+      '01n': 'clear-night',
+      '02d': 'partly-cloudy-day',
+      '02n': 'partly-cloudy-night',
+      '03d': 'cloudy',
+      '03n': 'cloudy',
+      '04d': 'overcast-day',
+      '04n': 'overcast-night',
+      '09d': 'drizzle',
+      '09n': 'drizzle',
+      '10d': 'partly-cloudy-day-rain',
+      '10n': 'partly-cloudy-night-rain',
+      '11d': 'thunderstorms-day-with-rain',
+      '11n': 'thunderstorms-night-with-rain',
+      '13d': 'snow',
+      '13n': 'snow',
+      '50d': 'mist',
+      '50n': 'mist',
+    };
+
+    function getIcon(code) {
+      const name = ICON_MAP[code] ?? ICON_MAP[code?.replace('n', 'd')] ?? 'cloudy';
+      return `<img class="weather-icon-img" src="${CDN}/${name}.svg" alt="${name}">`;
+    }
+
+    // ═══════════════════════════════════════════════════
+    // RENDER
+    // ═══════════════════════════════════════════════════
+
+    function renderDepartures(list) {
+      if (!list.length) return '<div class="empty">No departures</div>';
+      return list.map(d => `
+        <div class="departure-row">
+          <span class="dep-mins">${d.minutes} Min</span>
+          <span class="dep-sep">//</span>
+          <span class="dep-time">${d.time}</span>
+        </div>
+      `).join('');
+    }
+
+    function render(data) {
+      document.getElementById('clock').textContent = data.currentTime;
+
+      document.getElementById('left-header').textContent = data.departures.leftLabel;
+      document.getElementById('left-departures').innerHTML = renderDepartures(data.departures.left);
+
+      document.getElementById('right-header').textContent = data.departures.rightLabel;
+      document.getElementById('right-departures').innerHTML = renderDepartures(data.departures.right);
+
+      document.getElementById('weather-current').innerHTML = `
+        <div class="current-temp">${data.weather.current.temp}°C</div>
+        <div class="current-bottom">
+          <div class="current-icon">${getIcon(data.weather.current.icon)}</div>
+          <div class="current-wind">${data.weather.current.wind} km/h</div>
+        </div>
+      `;
+
+      document.getElementById('forecast-columns').innerHTML = data.weather.forecast.map(f => `
+        <div class="forecast-col">
+          <div class="fc-time">${f.time}</div>
+          <div class="fc-temp">${f.temp}°C</div>
+          <div class="fc-icon">${getIcon(f.icon)}</div>
+          <div class="fc-wind">${f.wind} km/h</div>
+        </div>
+      `).join('');
+    }
+
+    // ─── Entry point ──────────────────────────────────────
+    // window.DATA is injected by the server at render time.
+    // When opening this file directly in a browser, mock data
+    // is used so you can preview and edit the layout.
+    // ──────────────────────────────────────────────────────
+    const MOCK = {
+      currentTime: '12:00',
+      departures: {
+        leftLabel: 'U6',
+        left: [
+          { minutes: 5,  time: '12:05' },
+          { minutes: 10, time: '12:10' },
+          { minutes: 15, time: '12:15' },
+        ],
+        rightLabel: 'Bus 63',
+        right: [
+          { minutes: 3,  time: '12:03' },
+          { minutes: 11, time: '12:11' },
+          { minutes: 18, time: '12:18' },
+        ],
+      },
+      weather: {
+        current: { temp: 15, wind: 10, icon: '01d' },
+        forecast: [
+          { time: '15:00', temp: 17, wind: 12, icon: '02d' },
+          { time: '18:00', temp: 18, wind:  8, icon: '03d' },
+          { time: '21:00', temp: 14, wind: 11, icon: '10d' },
+          { time: '00:00', temp: 11, wind:  7, icon: '01n' },
+        ],
+      },
+    };
+
+    render(window.DATA ?? MOCK);
+  </script>
+</body>
+</html>
