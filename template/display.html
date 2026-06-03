@@ -17,7 +17,7 @@
       --pad: 36px;
       --gap: 18px;
 
-      --size-clock: 72px;
+      --size-clock: 54px;
       --size-section-title: 26px;
       --size-line-header: 21px;
       --size-departure: 27px;
@@ -101,24 +101,54 @@
 
     .departure-row {
       font-size: var(--size-departure);
-      line-height: 1.65;
       font-variant-numeric: tabular-nums;
       display: flex;
-      align-items: center;
+      flex-direction: column;
+      gap: 2px;
+      margin-bottom: 8px;
     }
 
-    .dep-mins { font-weight: 600; }
+    .dep-row-top,
+    .dep-row-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
 
-    .dep-sep { color: var(--muted); margin: 0 6px; }
+    .dep-dest {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--muted);
+      font-size: 0.85em;
+      margin-right: 12px;
+    }
 
-    .dep-time { color: var(--muted); }
+    .dep-mins { font-weight: 600; white-space: nowrap; }
+
+    .dep-message {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--muted);
+      font-style: italic;
+      font-size: 0.5em;
+      margin-right: 12px;
+    }
+
+    .dep-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dep-time { color: var(--muted); white-space: nowrap; font-size: 0.7em; }
 
     .dep-occupancy {
-      margin-left: 10px;
       letter-spacing: 2px;
       color: var(--muted);
       line-height: 1;
-      transform: translateY(-0.08em);
+      font-size: 0.7em;
     }
 
     .clock {
@@ -332,10 +362,17 @@
       if (!list.length) return '<div class="empty">No departures</div>';
       return list.map(d => `
         <div class="departure-row">
-          <span class="dep-mins">${d.minutes} Min</span>
-          <span class="dep-sep">//</span>
-          <span class="dep-time">${d.time}</span>
-          ${renderOccupancy(d.occupancy)}
+          <div class="dep-row-top">
+            <span class="dep-dest">${d.destination}</span>
+            <span class="dep-mins">${d.minutes} Min</span>
+          </div>
+          <div class="dep-row-bottom">
+            <span class="dep-message">${d.messages?.[0] ?? ''}</span>
+            <div class="dep-right">
+              ${renderOccupancy(d.occupancy)}
+              <span class="dep-time">${d.time}</span>
+            </div>
+          </div>
         </div>
       `).join('');
     }
@@ -379,15 +416,17 @@
       departures: {
         leftLabel: 'U6',
         left: [
-          { minutes: 5,  time: '12:05', occupancy: 'LOW' },
-          { minutes: 10, time: '12:10', occupancy: 'MEDIUM' },
-          { minutes: 15, time: '12:15', occupancy: 'HIGH' },
+          { minutes: 5,  time: '12:05', occupancy: 'LOW',     destination: 'Garching-Forschungszentrum' },
+          { minutes: 10, time: '12:10', occupancy: 'MEDIUM',  destination: 'Klinikum Großhadern', messages: ['Verspätung wegen Betriebsstörung'] },
+          { minutes: 15, time: '12:15', occupancy: 'HIGH',    destination: 'Fröttmaning' },
+          { minutes: 20, time: '12:20', occupancy: 'LOW',     destination: 'Garching-Forschungszentrum' },
         ],
         rightLabel: 'Bus 63',
         right: [
-          { minutes: 3,  time: '12:03', occupancy: 'UNKNOWN' },
-          { minutes: 11, time: '12:11', occupancy: 'LOW' },
-          { minutes: 18, time: '12:18', occupancy: 'MEDIUM' },
+          { minutes: 3,  time: '12:03', occupancy: 'UNKNOWN', destination: 'Holzapfelkreuth' },
+          { minutes: 11, time: '12:11', occupancy: 'LOW',     destination: 'Fürstenried West' },
+          { minutes: 18, time: '12:18', occupancy: 'MEDIUM',  destination: 'Holzapfelkreuth' },
+          { minutes: 25, time: '12:25', occupancy: 'LOW',     destination: 'Fürstenried West' },
         ],
       },
       weather: {

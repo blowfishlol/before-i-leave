@@ -36,6 +36,10 @@ function filterLine(list, line) {
     .map(d => {
       const t = d.realtimeDepartureTime ?? d.plannedDepartureTime;
       return {
+        destination: d.destination ?? '',
+        messages: (d.messages ?? [])
+          .map(m => typeof m === 'string' ? m : (m.title ?? m.text ?? ''))
+          .filter(Boolean),
         minutes: Math.max(0, Math.floor((t - now) / 60_000)),
         time: new Date(t).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', timeZone: TIMEZONE }),
         occupancy: d.occupancy ?? 'UNKNOWN',

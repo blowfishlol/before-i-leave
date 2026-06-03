@@ -4,6 +4,7 @@
 
 // MVG station ID for Westpark
 export const STATION_GLOBAL_ID = 'de:09162:1340';
+export const STATION_NAME = 'Westpark';
 
 // Left column: U6
 export const LEFT_LINE = {
@@ -20,7 +21,7 @@ export const RIGHT_LINE = {
 };
 
 // Departures shown per column
-export const DEPARTURES_SHOWN = 3;
+export const DEPARTURES_SHOWN = 4;
 
 // OpenWeatherMap city ID for Sendling-Westpark, Munich
 export const WEATHER_CITY_ID = 6556318;
