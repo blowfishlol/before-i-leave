@@ -38,6 +38,7 @@ function filterLine(list, line) {
       return {
         minutes: Math.max(0, Math.floor((t - now) / 60_000)),
         time: new Date(t).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', timeZone: TIMEZONE }),
+        occupancy: d.occupancy ?? 'UNKNOWN',
       };
     });
 }

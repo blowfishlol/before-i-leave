@@ -23,6 +23,7 @@ app.get('/image', async (req, res) => {
     const now = new Date();
     const data = {
       currentTime: now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', timeZone: TIMEZONE }),
+      currentDate: now.toLocaleDateString('en-GB', { weekday: 'short', day: '2-digit', month: 'short', timeZone: TIMEZONE }),
       departures,
       weather,
     };

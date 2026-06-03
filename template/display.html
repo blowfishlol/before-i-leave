@@ -2,12 +2,15 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;600;700&family=Michroma&display=swap" rel="stylesheet">
   <style>
     /* ═══════════════════════════════════════════════════
        THEME — edit these to tweak the look
        ═══════════════════════════════════════════════════ */
     :root {
-      --font: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      --font: 'Barlow', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      --font-display: 'Michroma', sans-serif;   /* clock only */
       --bg: #fff;
       --fg: #000;
       --muted: #555;
@@ -57,7 +60,6 @@
     .section-title {
       font-size: var(--size-section-title);
       font-weight: 700;
-      letter-spacing: -0.3px;
       margin-bottom: 12px;
     }
 
@@ -81,12 +83,28 @@
       border-bottom: 1.5px solid var(--fg);
       padding-bottom: 5px;
       margin-bottom: 10px;
+      position: relative;
+      overflow: visible;
+    }
+
+    .line-header::after {
+      content: '';
+      position: absolute;
+      left: 100%;
+      bottom: 0;
+      width: 16px;
+      height: 1.5px;
+      background: var(--fg);
+      transform-origin: left bottom;
+      transform: rotate(-60deg);
     }
 
     .departure-row {
       font-size: var(--size-departure);
       line-height: 1.65;
       font-variant-numeric: tabular-nums;
+      display: flex;
+      align-items: center;
     }
 
     .dep-mins { font-weight: 600; }
@@ -95,13 +113,32 @@
 
     .dep-time { color: var(--muted); }
 
+    .dep-occupancy {
+      margin-left: 10px;
+      letter-spacing: 2px;
+      color: var(--muted);
+      line-height: 1;
+      transform: translateY(-0.08em);
+    }
+
     .clock {
+      font-family: var(--font-display);
       font-size: var(--size-clock);
-      font-weight: 300;
-      letter-spacing: -2px;
+      font-weight: 400;
+      letter-spacing: 2px;
       white-space: nowrap;
       line-height: 1;
       padding-top: 2px;
+    }
+
+    .date {
+      font-size: 18px;
+      font-weight: 300;
+      letter-spacing: 1px;
+      color: var(--muted);
+      text-align: right;
+      white-space: nowrap;
+      margin-top: 6px;
     }
 
     /* ═══════════════════════════════════════════════════
@@ -109,8 +146,22 @@
        ═══════════════════════════════════════════════════ */
     .divider {
       flex: 0 0 auto;
-      border: none;
-      border-top: 1.5px solid var(--fg);
+      height: 1.5px;
+      background: var(--fg);
+      position: relative;
+      overflow: visible;
+    }
+
+    .divider::after {
+      content: '';
+      position: absolute;
+      left: 100%;
+      top: 0;
+      width: 20px;
+      height: 1.5px;
+      background: var(--fg);
+      transform-origin: left center;
+      transform: rotate(-60deg);
     }
 
     /* ═══════════════════════════════════════════════════
@@ -212,11 +263,14 @@
           </div>
         </div>
       </div>
-      <div class="clock" id="clock"></div>
+      <div>
+        <div class="clock" id="clock"></div>
+        <div class="date" id="date"></div>
+      </div>
     </div>
   </section>
 
-  <hr class="divider">
+  <div class="divider"></div>
 
   <!-- WEATHER ────────────────────────────────────── -->
   <section class="weather">
@@ -268,6 +322,12 @@
     // RENDER
     // ═══════════════════════════════════════════════════
 
+    function renderOccupancy(level) {
+      const filled = { LOW: 1, MEDIUM: 2, HIGH: 3 }[level] ?? 0;
+      if (!filled) return '';
+      return `<span class="dep-occupancy">${'▮'.repeat(filled)}${'▯'.repeat(3 - filled)}</span>`;
+    }
+
     function renderDepartures(list) {
       if (!list.length) return '<div class="empty">No departures</div>';
       return list.map(d => `
@@ -275,12 +335,14 @@
           <span class="dep-mins">${d.minutes} Min</span>
           <span class="dep-sep">//</span>
           <span class="dep-time">${d.time}</span>
+          ${renderOccupancy(d.occupancy)}
         </div>
       `).join('');
     }
 
     function render(data) {
       document.getElementById('clock').textContent = data.currentTime;
+      document.getElementById('date').textContent = data.currentDate;
 
       document.getElementById('left-header').textContent = data.departures.leftLabel;
       document.getElementById('left-departures').innerHTML = renderDepartures(data.departures.left);
@@ -313,18 +375,19 @@
     // ──────────────────────────────────────────────────────
     const MOCK = {
       currentTime: '12:00',
+      currentDate: 'Mon, 02 Jun',
       departures: {
         leftLabel: 'U6',
         left: [
-          { minutes: 5,  time: '12:05' },
-          { minutes: 10, time: '12:10' },
-          { minutes: 15, time: '12:15' },
+          { minutes: 5,  time: '12:05', occupancy: 'LOW' },
+          { minutes: 10, time: '12:10', occupancy: 'MEDIUM' },
+          { minutes: 15, time: '12:15', occupancy: 'HIGH' },
         ],
         rightLabel: 'Bus 63',
         right: [
-          { minutes: 3,  time: '12:03' },
-          { minutes: 11, time: '12:11' },
-          { minutes: 18, time: '12:18' },
+          { minutes: 3,  time: '12:03', occupancy: 'UNKNOWN' },
+          { minutes: 11, time: '12:11', occupancy: 'LOW' },
+          { minutes: 18, time: '12:18', occupancy: 'MEDIUM' },
         ],
       },
       weather: {
