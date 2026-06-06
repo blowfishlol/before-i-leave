@@ -1,16 +1,19 @@
 <!DOCTYPE html>
 <html lang="de">
+
 <head>
   <meta charset="UTF-8">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;600;700&family=Michroma&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;600;700&family=Michroma&display=swap"
+    rel="stylesheet">
   <style>
     /* ═══════════════════════════════════════════════════
        THEME — edit these to tweak the look
        ═══════════════════════════════════════════════════ */
     :root {
       --font: 'Barlow', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-      --font-display: 'Michroma', sans-serif;   /* clock only */
+      --font-display: 'Michroma', sans-serif;
+      /* clock only */
       --bg: #fff;
       --fg: #000;
       --muted: #555;
@@ -18,9 +21,10 @@
       --gap: 18px;
 
       --size-clock: 54px;
-      --size-section-title: 26px;
-      --size-line-header: 21px;
-      --size-departure: 27px;
+      --size-section-title: 34px;
+      --size-line-header: 42px;
+      --size-stop-header: 20px;
+      --size-departure: 40px;
       --size-current-temp: 68px;
       --size-current-wind: 19px;
       --size-forecast-time: 17px;
@@ -34,9 +38,16 @@
     /* ═══════════════════════════════════════════════════
        BASE
        ═══════════════════════════════════════════════════ */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-    html, body {
+    html,
+    body {
       width: 1280px;
       height: 720px;
       overflow: hidden;
@@ -55,64 +66,134 @@
     /* ═══════════════════════════════════════════════════
        DEPARTURES
        ═══════════════════════════════════════════════════ */
-    .departures { flex: 0 0 auto; }
+    .departures {
+      flex: 0 0 auto;
+    }
 
     .section-title {
       font-size: var(--size-section-title);
       font-weight: 700;
+    }
+
+    .departures-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
       margin-bottom: 12px;
     }
 
-    .departures-body {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 32px;
-    }
-
     .departures-columns {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0 56px;
+      display: flex;
+      gap: 40px;
       flex: 1;
     }
 
-    .line-header {
+    .line-column {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .line-label {
       font-size: var(--size-line-header);
-      font-weight: 600;
-      border-bottom: 1.5px solid var(--fg);
+      font-weight: 700;
+      border-bottom: 2px solid var(--fg);
       padding-bottom: 5px;
       margin-bottom: 10px;
       position: relative;
       overflow: visible;
     }
 
-    .line-header::after {
+    .line-label::after {
       content: '';
       position: absolute;
       left: 100%;
-      bottom: 0;
-      width: 16px;
-      height: 1.5px;
+      bottom: -2px;
+      width: 20px;
+      height: 2px;
       background: var(--fg);
-      transform-origin: left bottom;
+      transform-origin: left center;
       transform: rotate(-60deg);
     }
 
-    .departure-row {
-      font-size: var(--size-departure);
-      font-variant-numeric: tabular-nums;
+    .stop-columns {
       display: flex;
-      flex-direction: column;
-      gap: 2px;
-      margin-bottom: 8px;
+      gap: 20px;
+      flex: 1;
     }
 
-    .dep-row-top,
-    .dep-row-bottom {
+    .stop-column {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .stop-header {
+      font-size: var(--size-stop-header);
+      font-weight: 600;
+      color: var(--muted);
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 4px;
+      margin-bottom: 10px;
+      position: relative;
+      overflow: visible;
+    }
+
+    .stop-header-text {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .stop-header::after {
+      content: '';
+      position: absolute;
+      left: 100%;
+      bottom: -1px;
+      width: 14px;
+      height: 1px;
+      background: #ccc;
+      transform-origin: left center;
+      transform: rotate(-60deg);
+    }
+
+    .departures-grid {
+      display: grid;
+      grid-template-columns: auto auto 1fr;
+      column-gap: 12px;
+      row-gap: 12px;
+      align-items: center;
+      font-size: var(--size-departure);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .dep-mins {
+      font-weight: 600;
+      white-space: nowrap;
+      line-height: 1;
+    }
+
+    .dep-secondary {
       display: flex;
-      justify-content: space-between;
-      align-items: baseline;
+      flex-direction: column;
+      justify-content: center;
+      gap: 1px;
+    }
+
+    .dep-time {
+      color: var(--muted);
+      white-space: nowrap;
+      font-size: 0.38em;
+      line-height: 1.2;
+    }
+
+    .dep-info {
+      overflow: hidden;
+      font-size: 0.38em;
+      line-height: 1.2;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
     }
 
     .dep-dest {
@@ -120,11 +201,7 @@
       text-overflow: ellipsis;
       white-space: nowrap;
       color: var(--muted);
-      font-size: 0.85em;
-      margin-right: 12px;
     }
-
-    .dep-mins { font-weight: 600; white-space: nowrap; }
 
     .dep-message {
       overflow: hidden;
@@ -132,27 +209,17 @@
       white-space: nowrap;
       color: var(--muted);
       font-style: italic;
-      font-size: 0.5em;
-      margin-right: 12px;
     }
-
-    .dep-right {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .dep-time { color: var(--muted); white-space: nowrap; font-size: 0.7em; }
 
     .dep-occupancy {
-      letter-spacing: 2px;
+      letter-spacing: 1px;
       color: var(--muted);
-      line-height: 1;
-      font-size: 0.7em;
+      line-height: 1.2;
+      font-size: 0.38em;
     }
 
     .clock {
-      font-family: var(--font-display);
+      font-family: var(--font);
       font-size: var(--size-clock);
       font-weight: 400;
       letter-spacing: 2px;
@@ -197,7 +264,13 @@
     /* ═══════════════════════════════════════════════════
        WEATHER
        ═══════════════════════════════════════════════════ */
-    .weather { flex: 1; display: flex; flex-direction: column; min-height: 0; justify-content: center; }
+    .weather {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      justify-content: center;
+    }
 
     .weather-row {
       flex: 1;
@@ -232,7 +305,12 @@
       gap: 10px;
     }
 
-    .current-icon { width: var(--icon-current); height: var(--icon-current); flex-shrink: 0; display: block; }
+    .current-icon {
+      width: var(--icon-current);
+      height: var(--icon-current);
+      flex-shrink: 0;
+      display: block;
+    }
 
     .weather-icon-img {
       width: 100%;
@@ -241,7 +319,10 @@
       filter: grayscale(1) brightness(0);
     }
 
-    .current-wind { font-size: var(--size-current-wind); color: var(--muted); }
+    .current-wind {
+      font-size: var(--size-current-wind);
+      color: var(--muted);
+    }
 
     /* Forecast columns */
     .forecast-columns {
@@ -259,45 +340,53 @@
       gap: 6px;
     }
 
-    .fc-time { font-size: var(--size-forecast-time); font-weight: 600; color: var(--muted); }
+    .fc-time {
+      font-size: var(--size-forecast-time);
+      font-weight: 600;
+      color: var(--muted);
+    }
 
-    .fc-temp { font-size: var(--size-forecast-temp); font-variant-numeric: tabular-nums; }
+    .fc-temp {
+      font-size: var(--size-forecast-temp);
+      font-variant-numeric: tabular-nums;
+    }
 
-    .fc-icon { width: var(--icon-forecast); height: var(--icon-forecast); }
+    .fc-icon {
+      width: var(--icon-forecast);
+      height: var(--icon-forecast);
+    }
 
-    .fc-wind { font-size: var(--size-forecast-wind); color: var(--muted); }
+    .fc-wind {
+      font-size: var(--size-forecast-wind);
+      color: var(--muted);
+    }
 
     /* ═══════════════════════════════════════════════════
        UTILS
        ═══════════════════════════════════════════════════ */
-    .empty { color: var(--muted); font-style: italic; }
+    .empty {
+      color: var(--muted);
+      font-style: italic;
+    }
 
-    svg { display: block; }
+    svg {
+      display: block;
+    }
   </style>
 </head>
+
 <body>
 
   <!-- DEPARTURES ─────────────────────────────────── -->
   <section class="departures">
-    <div class="departures-body">
-      <div style="flex:1">
-        <div class="section-title">Departures</div>
-        <div class="departures-columns">
-          <div>
-            <div class="line-header" id="left-header"></div>
-            <div id="left-departures"></div>
-          </div>
-          <div>
-            <div class="line-header" id="right-header"></div>
-            <div id="right-departures"></div>
-          </div>
-        </div>
-      </div>
+    <div class="departures-header">
+      <div class="section-title">Departures</div>
       <div>
         <div class="clock" id="clock"></div>
         <div class="date" id="date"></div>
       </div>
     </div>
+    <div class="departures-columns" id="departures-columns"></div>
   </section>
 
   <div class="divider"></div>
@@ -320,7 +409,7 @@
     // Maps OWM icon codes → icon names.
     // Browse all names at: https://bas.dev/work/meteocons
     // ═══════════════════════════════════════════════════
-    const CDN = 'https://cdn.jsdelivr.net/gh/basmilius/weather-icons/production/line/all';
+    const CDN = 'https://cdn.jsdelivr.net/gh/basmilius/weather-icons/production/line/all'
 
     const ICON_MAP = {
       '01d': 'clear-day',
@@ -341,11 +430,11 @@
       '13n': 'snow',
       '50d': 'mist',
       '50n': 'mist',
-    };
+    }
 
     function getIcon(code) {
-      const name = ICON_MAP[code] ?? ICON_MAP[code?.replace('n', 'd')] ?? 'cloudy';
-      return `<img class="weather-icon-img" src="${CDN}/${name}.svg" alt="${name}">`;
+      const name = ICON_MAP[code] ?? ICON_MAP[code?.replace('n', 'd')] ?? 'cloudy'
+      return `<img class="weather-icon-img" src="${CDN}/${name}.svg" alt="${name}">`
     }
 
     // ═══════════════════════════════════════════════════
@@ -353,39 +442,52 @@
     // ═══════════════════════════════════════════════════
 
     function renderOccupancy(level) {
-      const filled = { LOW: 1, MEDIUM: 2, HIGH: 3 }[level] ?? 0;
-      if (!filled) return '';
-      return `<span class="dep-occupancy">${'▮'.repeat(filled)}${'▯'.repeat(3 - filled)}</span>`;
+      const filled = { LOW: 1, MEDIUM: 2, HIGH: 3 }[level] ?? 0
+      const visible = filled > 0
+      return `<span class="dep-occupancy" style="${visible ? '' : 'visibility:hidden'}">${'▮'.repeat(filled)}${'▯'.repeat(3 - filled)}</span>`
     }
 
     function renderDepartures(list) {
-      if (!list.length) return '<div class="empty">No departures</div>';
-      return list.map(d => `
-        <div class="departure-row">
-          <div class="dep-row-top">
-            <span class="dep-dest">${d.destination}</span>
-            <span class="dep-mins">${d.minutes} Min</span>
-          </div>
-          <div class="dep-row-bottom">
-            <span class="dep-message">${d.messages?.[0] ?? ''}</span>
-            <div class="dep-right">
-              ${renderOccupancy(d.occupancy)}
-              <span class="dep-time">${d.time}</span>
-            </div>
-          </div>
+      if (!list.length) return '<div class="empty">No departures</div>'
+      const cells = list.flatMap(d => [
+        `<span class="dep-mins">${d.minutes} Min</span>`,
+        `<div class="dep-secondary">
+          ${renderOccupancy(d.occupancy)}
+          <span class="dep-time">${d.time}</span>
+        </div>`,
+        `<div class="dep-info">
+          <span class="dep-dest" style="${d.outlier ? '' : 'visibility:hidden'}">${d.destination}</span>
+          <span class="dep-message" style="${d.messages?.[0] ? '' : 'visibility:hidden'}">${d.messages?.[0] ?? ' '}</span>
+        </div>`,
+      ])
+      return `<div class="departures-grid">${cells.join('')}</div>`
+    }
+
+    function renderStopColumn(group) {
+      return `
+        <div class="stop-column">
+          <div class="stop-header"><span class="stop-header-text">${group.label}</span></div>
+          ${renderDepartures(group.departures)}
         </div>
-      `).join('');
+      `
+    }
+
+    function renderLineColumn(label, groups) {
+      return `
+        <div class="line-column">
+          <div class="line-label">${label}</div>
+          <div class="stop-columns">${groups.map(renderStopColumn).join('')}</div>
+        </div>
+      `
     }
 
     function render(data) {
-      document.getElementById('clock').textContent = data.currentTime;
-      document.getElementById('date').textContent = data.currentDate;
+      document.getElementById('clock').textContent = data.currentTime
+      document.getElementById('date').textContent = data.currentDate
 
-      document.getElementById('left-header').textContent = data.departures.leftLabel;
-      document.getElementById('left-departures').innerHTML = renderDepartures(data.departures.left);
-
-      document.getElementById('right-header').textContent = data.departures.rightLabel;
-      document.getElementById('right-departures').innerHTML = renderDepartures(data.departures.right);
+      document.getElementById('departures-columns').innerHTML =
+        renderLineColumn(data.departures.leftLabel, data.departures.left) +
+        renderLineColumn(data.departures.rightLabel, data.departures.right)
 
       document.getElementById('weather-current').innerHTML = `
         <div class="current-temp">${data.weather.current.temp}°C</div>
@@ -393,7 +495,7 @@
           <div class="current-icon">${getIcon(data.weather.current.icon)}</div>
           <div class="current-wind">${data.weather.current.wind} km/h</div>
         </div>
-      `;
+      `
 
       document.getElementById('forecast-columns').innerHTML = data.weather.forecast.map(f => `
         <div class="forecast-col">
@@ -402,7 +504,7 @@
           <div class="fc-icon">${getIcon(f.icon)}</div>
           <div class="fc-wind">${f.wind} km/h</div>
         </div>
-      `).join('');
+      `).join('')
     }
 
     // ─── Entry point ──────────────────────────────────────
@@ -416,31 +518,60 @@
       departures: {
         leftLabel: 'U6',
         left: [
-          { minutes: 5,  time: '12:05', occupancy: 'LOW',     destination: 'Garching-Forschungszentrum' },
-          { minutes: 10, time: '12:10', occupancy: 'MEDIUM',  destination: 'Klinikum Großhadern', messages: ['Verspätung wegen Betriebsstörung'] },
-          { minutes: 15, time: '12:15', occupancy: 'HIGH',    destination: 'Fröttmaning' },
-          { minutes: 20, time: '12:20', occupancy: 'LOW',     destination: 'Garching-Forschungszentrum' },
+          {
+            stopId: 'de:09162:1340:51:51',
+            label: 'Implerstraße',
+            departures: [
+              { minutes: 5, time: '12:05', occupancy: 'LOW', destination: 'Implerstraße' },
+              { minutes: 15, time: '12:15', occupancy: 'MEDIUM', destination: 'Implerstraße' },
+              { minutes: 25, time: '12:25', occupancy: 'LOW', destination: 'Implerstraße' },
+            ],
+          },
+          {
+            stopId: 'de:09162:1340:51:52',
+            label: 'Klinikum Großhadern',
+            departures: [
+              { minutes: 3, time: '12:03', occupancy: 'LOW', destination: 'Garching-Forschungszentrum', messages: ['Verspätung'], outlier: false },
+              { minutes: 13, time: '12:13', occupancy: 'HIGH', destination: 'Fröttmaning', outlier: true },
+              { minutes: 23, time: '12:23', occupancy: 'MEDIUM', destination: 'Garching-Forschungszentrum', outlier: false },
+            ],
+          },
         ],
         rightLabel: 'Bus 63',
         right: [
-          { minutes: 3,  time: '12:03', occupancy: 'UNKNOWN', destination: 'Holzapfelkreuth' },
-          { minutes: 11, time: '12:11', occupancy: 'LOW',     destination: 'Fürstenried West' },
-          { minutes: 18, time: '12:18', occupancy: 'MEDIUM',  destination: 'Holzapfelkreuth' },
-          { minutes: 25, time: '12:25', occupancy: 'LOW',     destination: 'Fürstenried West' },
+          {
+            stopId: 'de:09162:1340:3:3',
+            label: 'Forstenrieder Allee',
+            departures: [
+              { minutes: 4, time: '12:04', occupancy: 'UNKNOWN', destination: 'Forstenrieder Allee' },
+              { minutes: 14, time: '12:14', occupancy: 'LOW', destination: 'Forstenrieder Allee' },
+              { minutes: 24, time: '12:24', occupancy: 'LOW', destination: 'Forstenrieder Allee' },
+            ],
+          },
+          {
+            stopId: 'de:09162:1340:1:1',
+            label: 'Rotkreuzplatz',
+            departures: [
+              { minutes: 8, time: '12:08', occupancy: 'LOW', destination: 'Rotkreuzplatz' },
+              { minutes: 18, time: '12:18', occupancy: 'MEDIUM', destination: 'Rotkreuzplatz' },
+              { minutes: 28, time: '12:28', occupancy: 'LOW', destination: 'Rotkreuzplatz' },
+            ],
+          },
         ],
       },
       weather: {
         current: { temp: 15, wind: 10, icon: '01d' },
         forecast: [
           { time: '15:00', temp: 17, wind: 12, icon: '02d' },
-          { time: '18:00', temp: 18, wind:  8, icon: '03d' },
+          { time: '18:00', temp: 18, wind: 8, icon: '03d' },
           { time: '21:00', temp: 14, wind: 11, icon: '10d' },
-          { time: '00:00', temp: 11, wind:  7, icon: '01n' },
+          { time: '00:00', temp: 11, wind: 7, icon: '01n' },
         ],
       },
-    };
+    }
 
     render(window.DATA ?? MOCK);
   </script>
 </body>
+
 </html>

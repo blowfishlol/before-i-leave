@@ -21,7 +21,7 @@ export const RIGHT_LINE = {
 };
 
 // Departures shown per column
-export const DEPARTURES_SHOWN = 4;
+export const DEPARTURES_SHOWN = 3;
 
 // OpenWeatherMap city ID for Sendling-Westpark, Munich
 export const WEATHER_CITY_ID = 6556318;
