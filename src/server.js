@@ -13,7 +13,7 @@ if (!API_KEY) {
   process.exit(1);
 }
 
-app.get('/image', async (req, res) => {
+app.get('/image.png', async (req, res) => {
   try {
     const [departures, weather] = await Promise.all([
       getDepartures(),
@@ -38,7 +38,7 @@ app.get('/image', async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Listening on http://localhost:${PORT}/image`);
+  console.log(`Listening on http://localhost:${PORT}/image.png`);
 });
 
 for (const sig of ['SIGTERM', 'SIGINT']) {
