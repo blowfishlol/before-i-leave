@@ -16,7 +16,7 @@ export const LEFT_LINE = {
 
 // Right column: Bus 63
 export const RIGHT_LINE = {
-  displayLabel: 'Bus 63',
+  displayLabel: '63',
   transportType: 'BUS',
   lineId: '63',
   icon: 'bus-simple',
