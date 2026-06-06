@@ -11,6 +11,7 @@ export const LEFT_LINE = {
   displayLabel: 'U6',
   transportType: 'UBAHN',
   lineId: 'U6',
+  icon: 'train-subway',
 };
 
 // Right column: Bus 63
@@ -18,6 +19,7 @@ export const RIGHT_LINE = {
   displayLabel: 'Bus 63',
   transportType: 'BUS',
   lineId: '63',
+  icon: 'bus-simple',
 };
 
 // Departures shown per column

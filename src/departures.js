@@ -65,8 +65,10 @@ export async function getDepartures() {
   const list = await fetchRaw();
   return {
     leftLabel: LEFT_LINE.displayLabel,
+    leftIcon: LEFT_LINE.icon,
     left: filterAndGroupLine(list, LEFT_LINE),
     rightLabel: RIGHT_LINE.displayLabel,
+    rightIcon: RIGHT_LINE.icon,
     right: filterAndGroupLine(list, RIGHT_LINE),
   };
 }
