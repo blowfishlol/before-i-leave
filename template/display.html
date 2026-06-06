@@ -20,18 +20,18 @@
       --pad: 36px;
       --gap: 18px;
 
-      --size-clock: 54px;
+      --size-clock: 80px;
       --size-section-title: 34px;
       --size-line-header: 42px;
-      --size-stop-header: 20px;
+      --size-stop-header: 24px;
       --size-departure: 40px;
-      --size-current-temp: 110px;
-      --size-current-wind: 26px;
+      --size-current-temp: 64px;
+      --size-current-wind: 22px;
       --size-forecast-time: 24px;
       --size-forecast-temp: 42px;
       --size-forecast-wind: 20px;
 
-      --icon-current: 90px;
+      --icon-current: 110px;
       --icon-forecast: 68px;
     }
 
@@ -72,7 +72,7 @@
 
     .section-title {
       font-size: var(--size-section-title);
-      font-weight: 700;
+      font-weight: 300;
     }
 
     .departures-header {
@@ -96,7 +96,7 @@
 
     .line-label {
       font-size: var(--size-line-header);
-      font-weight: 700;
+      font-weight: 400;
       border-bottom: 2px solid var(--fg);
       padding-bottom: 5px;
       margin-bottom: 10px;
@@ -173,6 +173,14 @@
       line-height: 1;
     }
 
+    .dep-unit {
+      font-size: 0.4em;
+      font-weight: 400;
+      vertical-align: super;
+      line-height: 0;
+      margin-left: 0.3em;
+    }
+
     .dep-secondary {
       display: flex;
       flex-direction: column;
@@ -221,22 +229,27 @@
     .clock {
       font-family: var(--font);
       font-size: var(--size-clock);
-      font-weight: 400;
+      font-weight: 300;
       letter-spacing: 2px;
       white-space: nowrap;
       line-height: 1;
-      padding-top: 2px;
+      border-bottom: 1px solid var(--fg);
+      padding-bottom: 8px;
     }
 
     .clock-block {
       display: flex;
-      flex-direction: row;
+      flex-direction: column;
       align-items: flex-start;
-      gap: 12px;
+      justify-content: flex-start;
+      gap: 6px;
+      flex-shrink: 0;
+      border-right: 1px solid var(--fg);
+      padding-right: 28px;
     }
 
     .date {
-      font-size: 18px;
+      font-size: var(--size-section-title);
       font-weight: 300;
       letter-spacing: 1px;
       color: var(--muted);
@@ -272,9 +285,19 @@
     .weather {
       flex: 1;
       display: flex;
+      flex-direction: row;
+      min-height: 0;
+      align-items: stretch;
+      gap: 28px;
+    }
+
+    .weather-content {
+      flex: 1;
+      display: flex;
       flex-direction: column;
       min-height: 0;
-      justify-content: center;
+      justify-content: flex-start;
+      gap: 32px;
     }
 
     .weather-row {
@@ -285,16 +308,11 @@
       gap: 24px;
     }
 
-    /* Current conditions — left block */
+    /* Current conditions — merged into clock block */
     .weather-current {
       display: flex;
       flex-direction: column;
-      justify-content: center;
       gap: 6px;
-      padding-right: 28px;
-      border-right: 1.5px solid var(--fg);
-      min-width: 220px;
-      align-self: stretch;
     }
 
     .current-temp {
@@ -317,11 +335,20 @@
       display: block;
     }
 
-    .weather-icon-img {
+    .current-icon svg,
+    .fc-icon svg {
       width: 100%;
       height: 100%;
       display: block;
       filter: grayscale(1) brightness(0);
+    }
+
+    .current-icon svg * {
+      stroke-width: 1 !important;
+    }
+
+    .fc-icon svg * {
+      stroke-width: 1.5 !important;
     }
 
     .current-wind {
@@ -331,11 +358,10 @@
 
     /* Forecast columns */
     .forecast-columns {
-      flex: 1;
       display: flex;
-      justify-content: space-around;
-      align-items: center;
-      padding-bottom: 8px;
+      width: 100%;
+      justify-content: space-between;
+      align-items: flex-start;
     }
 
     .forecast-col {
@@ -384,13 +410,6 @@
 
   <!-- DEPARTURES ─────────────────────────────────── -->
   <section class="departures">
-    <div class="departures-header">
-      <div class="section-title">Departures</div>
-      <div class="clock-block">
-        <div class="date" id="date"></div>
-        <div class="clock" id="clock"></div>
-      </div>
-    </div>
     <div class="departures-columns" id="departures-columns"></div>
   </section>
 
@@ -398,9 +417,13 @@
 
   <!-- WEATHER ────────────────────────────────────── -->
   <section class="weather">
-    <div class="section-title">Weather</div>
-    <div class="weather-row">
+    <div class="clock-block">
+      <div class="date" id="date"></div>
+      <div class="clock" id="clock"></div>
       <div class="weather-current" id="weather-current"></div>
+    </div>
+    <div class="weather-content">
+      <div class="section-title">Weather</div>
       <div class="forecast-columns" id="forecast-columns"></div>
     </div>
   </section>
@@ -437,14 +460,28 @@
       '50n': 'mist',
     }
 
-    function getIcon(code) {
+    const iconCache = new Map()
+
+    async function getIcon(code) {
       const name = ICON_MAP[code] ?? ICON_MAP[code?.replace('n', 'd')] ?? 'cloudy'
-      return `<img class="weather-icon-img" src="${CDN}/${name}.svg" alt="${name}">`
+      if (!iconCache.has(name)) {
+        const res = await fetch(`${CDN}/${name}.svg`)
+        iconCache.set(name, await res.text())
+      }
+      return iconCache.get(name)
     }
 
     // ═══════════════════════════════════════════════════
     // RENDER
     // ═══════════════════════════════════════════════════
+
+    function formatMinutes(mins) {
+      if (mins >= 60) {
+        const h = Math.floor(mins / 60)
+        return `${h}<span class="dep-unit">hour</span>`
+      }
+      return `${mins}<span class="dep-unit">min</span>`
+    }
 
     function renderOccupancy(level) {
       const filled = { LOW: 1, MEDIUM: 2, HIGH: 3 }[level] ?? 0
@@ -455,7 +492,7 @@
     function renderDepartures(list) {
       if (!list.length) return '<div class="empty">No departures</div>'
       const cells = list.flatMap(d => [
-        `<span class="dep-mins">${d.minutes} Min</span>`,
+        `<span class="dep-mins">${formatMinutes(d.minutes)}</span>`,
         `<div class="dep-secondary">
           ${renderOccupancy(d.occupancy)}
           <span class="dep-time">${d.time}</span>
@@ -486,7 +523,7 @@
       `
     }
 
-    function render(data) {
+    async function render(data) {
       document.getElementById('clock').textContent = data.currentTime
       document.getElementById('date').textContent = data.currentDate
 
@@ -494,22 +531,27 @@
         renderLineColumn(data.departures.leftLabel, data.departures.left) +
         renderLineColumn(data.departures.rightLabel, data.departures.right)
 
+      const currentIcon = await getIcon(data.weather.current.icon)
       document.getElementById('weather-current').innerHTML = `
         <div class="current-temp">${data.weather.current.temp}°C</div>
         <div class="current-bottom">
-          <div class="current-icon">${getIcon(data.weather.current.icon)}</div>
+          <div class="current-icon">${currentIcon}</div>
           <div class="current-wind">${data.weather.current.wind} km/h</div>
         </div>
       `
 
-      document.getElementById('forecast-columns').innerHTML = data.weather.forecast.map(f => `
-        <div class="forecast-col">
-          <div class="fc-time">${f.time}</div>
-          <div class="fc-temp">${f.temp}°C</div>
-          <div class="fc-icon">${getIcon(f.icon)}</div>
-          <div class="fc-wind">${f.wind} km/h</div>
-        </div>
-      `).join('')
+      const forecastHtml = await Promise.all(data.weather.forecast.map(async f => {
+        const icon = await getIcon(f.icon)
+        return `
+          <div class="forecast-col">
+            <div class="fc-time">${f.time}</div>
+            <div class="fc-temp">${f.temp}°C</div>
+            <div class="fc-icon">${icon}</div>
+            <div class="fc-wind">${f.wind} km/h</div>
+          </div>
+        `
+      }))
+      document.getElementById('forecast-columns').innerHTML = forecastHtml.join('')
     }
 
     // ─── Entry point ──────────────────────────────────────
@@ -571,11 +613,13 @@
           { time: '18:00', temp: 18, wind: 8, icon: '03d' },
           { time: '21:00', temp: 14, wind: 11, icon: '10d' },
           { time: '00:00', temp: 11, wind: 7, icon: '01n' },
+          { time: '03:00', temp: 9, wind: 5, icon: '01n' },
+          { time: '06:00', temp: 10, wind: 6, icon: '02d' },
         ],
       },
     }
 
-    render(window.DATA ?? MOCK);
+    render(window.DATA ?? MOCK).catch(console.error);
   </script>
 </body>
 

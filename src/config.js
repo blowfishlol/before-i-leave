@@ -23,11 +23,12 @@ export const RIGHT_LINE = {
 // Departures shown per column
 export const DEPARTURES_SHOWN = 3;
 
-// OpenWeatherMap city ID for Sendling-Westpark, Munich
-export const WEATHER_CITY_ID = 6556318;
+// Coordinates for Westpark, Munich (used by One Call API)
+export const WEATHER_LAT = 48.1085;
+export const WEATHER_LON = 11.5214;
 
 // Number of 3-hour forecast slots to show (4 = next 12 hours)
-export const WEATHER_FORECAST_SLOTS = 4;
+export const WEATHER_FORECAST_SLOTS = 6;
 
 // Cache TTL in milliseconds
 export const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes

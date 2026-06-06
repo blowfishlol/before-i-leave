@@ -1,4 +1,4 @@
-import { WEATHER_CITY_ID, WEATHER_FORECAST_SLOTS, CACHE_TTL_MS, TIMEZONE } from './config.js';
+import { WEATHER_LAT, WEATHER_LON, WEATHER_FORECAST_SLOTS, CACHE_TTL_MS, TIMEZONE } from './config.js';
 import { createCache } from './cache.js';
 
 const cache = createCache(CACHE_TTL_MS);
@@ -6,7 +6,8 @@ const BASE = 'https://api.openweathermap.org/data/2.5';
 
 async function owmFetch(endpoint, apiKey, params) {
   const url = new URL(`${BASE}/${endpoint}`);
-  url.searchParams.set('id', WEATHER_CITY_ID);
+  url.searchParams.set('lat', WEATHER_LAT);
+  url.searchParams.set('lon', WEATHER_LON);
   url.searchParams.set('appid', apiKey);
   url.searchParams.set('units', 'metric');
   for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
@@ -34,8 +35,7 @@ export async function getWeather(apiKey) {
 
   const [current, forecast] = await Promise.all([
     owmFetch('weather', apiKey, {}),
-    // cnt limits returned 3h slots; fetch a few extra to ensure we have enough after filtering
-    owmFetch('forecast', apiKey, { cnt: WEATHER_FORECAST_SLOTS + 2 }),
+    owmFetch('forecast', apiKey, { cnt: WEATHER_FORECAST_SLOTS }),
   ]);
 
   const result = {
