@@ -51,7 +51,7 @@ function filterAndGroupLine(list, line) {
     }
   }
 
-  const result = [...groups.values()];
+  const result = [...groups.values()].sort((a, b) => a.stopId.localeCompare(b.stopId));
   for (const group of result) {
     const freq = {};
     for (const d of group.departures) freq[d.destination] = (freq[d.destination] ?? 0) + 1;

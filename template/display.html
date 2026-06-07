@@ -391,7 +391,6 @@
       color: var(--muted);
       font-style: italic;
     }
-
   </style>
 </head>
 
@@ -484,7 +483,7 @@
           ${renderOccupancy(d.occupancy)}
           <span class="dep-time">${d.time}</span>
         </div>`,
-        `<span class="dep-info">${[d.outlier ? `To ${d.destination}` : '', d.messages?.[0] ?? ''].filter(Boolean).join(' · ')}</span>`,
+        `<span class="dep-info">${[d.outlier ? `→${d.destination}` : '', d.messages?.[0] ?? ''].filter(Boolean).join(' · ')}</span>`,
       ])
       return `<div class="departures-grid">${cells.join('')}</div>`
     }
@@ -574,21 +573,21 @@
         rightIcon: 'bus-simple',
         right: [
           {
-            stopId: 'de:09162:1340:3:3',
-            label: 'Forstenrieder Allee',
-            departures: [
-              { minutes: 4, time: '12:04', occupancy: 'UNKNOWN', destination: 'Forstenrieder Allee' },
-              { minutes: 14, time: '12:14', occupancy: 'LOW', destination: 'Forstenrieder Allee' },
-              { minutes: 24, time: '12:24', occupancy: 'LOW', destination: 'Forstenrieder Allee' },
-            ],
-          },
-          {
             stopId: 'de:09162:1340:1:1',
             label: 'Rotkreuzplatz',
             departures: [
               { minutes: 8, time: '12:08', occupancy: 'LOW', destination: 'Rotkreuzplatz' },
               { minutes: 18, time: '12:18', occupancy: 'MEDIUM', destination: 'Rotkreuzplatz' },
               { minutes: 28, time: '12:28', occupancy: 'LOW', destination: 'Rotkreuzplatz' },
+            ],
+          },
+          {
+            stopId: 'de:09162:1340:3:3',
+            label: 'Forstenrieder Allee',
+            departures: [
+              { minutes: 4, time: '12:04', occupancy: 'UNKNOWN', destination: 'Forstenrieder Allee' },
+              { minutes: 14, time: '12:14', occupancy: 'LOW', destination: 'Forstenrieder Allee' },
+              { minutes: 24, time: '12:24', occupancy: 'LOW', destination: 'Forstenrieder Allee' },
             ],
           },
         ],
