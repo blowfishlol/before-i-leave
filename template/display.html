@@ -25,7 +25,7 @@
       --size-section-title: 34px;
       --size-line-header: 42px;
       --size-stop-header: 24px;
-      --size-departure: 40px;
+      --size-departure: 48px;
       --size-current-temp: 64px;
       --size-current-wind: 22px;
       --size-forecast-time: 24px;
@@ -74,6 +74,7 @@
     .section-title {
       font-size: var(--size-section-title);
       font-weight: 300;
+      letter-spacing: 1px;
     }
 
     .departures-header {
@@ -96,8 +97,9 @@
     }
 
     .line-label {
-      font-size: var(--size-line-header);
-      font-weight: 400;
+      font-size: var(--size-section-title);
+      font-weight: 300;
+      letter-spacing: 1px;
       border-bottom: 2px solid var(--fg);
       padding-bottom: 5px;
       margin-bottom: 10px;
@@ -192,39 +194,29 @@
     .dep-time {
       color: var(--muted);
       white-space: nowrap;
-      font-size: 0.38em;
+      font-size: var(--size-forecast-time);
+      font-weight: 600;
       line-height: 1.2;
     }
 
     .dep-info {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
       overflow: hidden;
-      font-size: 0.38em;
-      line-height: 1.2;
-      display: flex;
-      flex-direction: column;
-      gap: 1px;
-    }
-
-    .dep-dest {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      color: var(--muted);
-    }
-
-    .dep-message {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      color: var(--muted);
+      font-size: 0.28em;
+      line-height: 1.3;
       font-style: italic;
+      color: var(--muted);
+      text-align: left;
+      align-self: start;
     }
 
     .dep-occupancy {
-      letter-spacing: 1px;
       color: var(--muted);
       line-height: 1.2;
-      font-size: 0.38em;
+      font-size: 0.28em;
     }
 
     .clock {
@@ -480,7 +472,7 @@
     function renderOccupancy(level) {
       const iconMap = { LOW: 'fa-user', MEDIUM: 'fa-user-group', HIGH: 'fa-users' }
       const icon = iconMap[level]
-      if (!icon) return `<span class="dep-occupancy"></span>`
+      if (!icon) return `<span class="dep-occupancy" style="visibility:hidden"><i class="fa-solid fa-user"></i></span>`
       return `<span class="dep-occupancy"><i class="fa-solid ${icon}"></i></span>`
     }
 
@@ -492,10 +484,7 @@
           ${renderOccupancy(d.occupancy)}
           <span class="dep-time">${d.time}</span>
         </div>`,
-        `<div class="dep-info">
-          <span class="dep-dest" style="${d.outlier ? '' : 'visibility:hidden'}">${d.destination}</span>
-          <span class="dep-message" style="${d.messages?.[0] ? '' : 'visibility:hidden'}">${d.messages?.[0] ?? ' '}</span>
-        </div>`,
+        `<span class="dep-info">${[d.outlier ? `To ${d.destination}` : '', d.messages?.[0] ?? ''].filter(Boolean).join(' · ')}</span>`,
       ])
       return `<div class="departures-grid">${cells.join('')}</div>`
     }
